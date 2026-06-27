@@ -43,6 +43,25 @@ before update on public.reports
 for each row
 execute function public.set_updated_at();
 
+create or replace function public.prepare_public_report_insert()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.status = 'pending';
+  new.admin_memo = null;
+  new.reviewed_at = null;
+  new.reviewed_by = null;
+  return new;
+end;
+$$;
+
+drop trigger if exists reports_prepare_public_insert on public.reports;
+create trigger reports_prepare_public_insert
+before insert on public.reports
+for each row
+execute function public.prepare_public_report_insert();
+
 create or replace function public.is_reports_admin()
 returns boolean
 language sql
@@ -65,12 +84,7 @@ create policy "public can insert pending reports"
 on public.reports
 for insert
 to anon, authenticated
-with check (
-  status = 'pending'
-  and admin_memo is null
-  and reviewed_at is null
-  and reviewed_by is null
-);
+with check (true);
 
 drop policy if exists "public can read approved reports" on public.reports;
 create policy "public can read approved reports"
