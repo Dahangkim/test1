@@ -27,6 +27,28 @@ create index if not exists reports_status_idx on public.reports(status);
 create index if not exists reports_shop_id_idx on public.reports(shop_id);
 create index if not exists reports_created_at_idx on public.reports(created_at desc);
 
+create table if not exists public.shop_memos (
+  shop_id text primary key,
+  shop_name text not null,
+  dong text,
+  address text,
+  status text,
+  open_date text,
+  close_date text,
+  field_check text,
+  open_guess text,
+  online_ad text,
+  source_url text,
+  memo_text text,
+  created_by uuid references auth.users(id),
+  updated_by uuid references auth.users(id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists shop_memos_dong_idx on public.shop_memos(dong);
+create index if not exists shop_memos_updated_at_idx on public.shop_memos(updated_at desc);
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -40,6 +62,12 @@ $$;
 drop trigger if exists reports_set_updated_at on public.reports;
 create trigger reports_set_updated_at
 before update on public.reports
+for each row
+execute function public.set_updated_at();
+
+drop trigger if exists shop_memos_set_updated_at on public.shop_memos;
+create trigger shop_memos_set_updated_at
+before update on public.shop_memos
 for each row
 execute function public.set_updated_at();
 
@@ -121,6 +149,7 @@ $$;
 
 alter table public.reports enable row level security;
 alter table public.admin_profiles enable row level security;
+alter table public.shop_memos enable row level security;
 
 drop policy if exists "public can insert pending reports" on public.reports;
 create policy "public can insert pending reports"
@@ -157,6 +186,28 @@ on public.admin_profiles
 for select
 to authenticated
 using (public.is_reports_admin());
+
+drop policy if exists "admins can read shop memos" on public.shop_memos;
+create policy "admins can read shop memos"
+on public.shop_memos
+for select
+to authenticated
+using (public.is_reports_admin());
+
+drop policy if exists "admins can insert shop memos" on public.shop_memos;
+create policy "admins can insert shop memos"
+on public.shop_memos
+for insert
+to authenticated
+with check (public.is_reports_admin());
+
+drop policy if exists "admins can update shop memos" on public.shop_memos;
+create policy "admins can update shop memos"
+on public.shop_memos
+for update
+to authenticated
+using (public.is_reports_admin())
+with check (public.is_reports_admin());
 
 -- 관리자 등록 예시:
 -- 1. Supabase Auth에서 관리자 계정을 만든다.

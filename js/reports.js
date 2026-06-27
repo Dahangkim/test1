@@ -1,7 +1,9 @@
 (function () {
   const TABLE = "reports";
+  const MEMO_TABLE = "shop_memos";
   const PUBLIC_COLUMNS = "id,shop_id,shop_name,shop_address,report_type,report_content,source_url,status,created_at,reviewed_at";
   const ADMIN_COLUMNS = "id,shop_id,shop_name,shop_address,report_type,report_content,source_url,reporter_contact,status,admin_memo,created_at,updated_at,reviewed_at,reviewed_by";
+  const MEMO_COLUMNS = "shop_id,shop_name,dong,address,status,open_date,close_date,field_check,open_guess,online_ad,source_url,memo_text,created_at,updated_at,created_by,updated_by";
 
   function client() {
     return window.JejuSupabase?.client || null;
@@ -110,6 +112,45 @@
     return data;
   }
 
+  async function getShopMemo(shopId) {
+    const { data, error } = await requireClient()
+      .from(MEMO_TABLE)
+      .select(MEMO_COLUMNS)
+      .eq("shop_id", shopId)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  async function upsertShopMemo(payload) {
+    const { data: userData } = await requireClient().auth.getUser();
+    const userId = userData?.user?.id || null;
+    const row = {
+      shop_id: String(payload.shopId || "").trim(),
+      shop_name: String(payload.shopName || "").trim(),
+      dong: String(payload.dong || "").trim() || null,
+      address: String(payload.address || "").trim() || null,
+      status: String(payload.status || "").trim() || null,
+      open_date: String(payload.openDate || "").trim() || null,
+      close_date: String(payload.closeDate || "").trim() || null,
+      field_check: String(payload.fieldCheck || "").trim() || null,
+      open_guess: String(payload.openGuess || "").trim() || null,
+      online_ad: String(payload.online || "").trim() || null,
+      source_url: String(payload.source || "").trim() || null,
+      memo_text: String(payload.text || "").trim() || null,
+      updated_by: userId
+    };
+    if (!row.shop_id || !row.shop_name) throw new Error("업소 정보가 필요합니다.");
+
+    const { data, error } = await requireClient()
+      .from(MEMO_TABLE)
+      .upsert(row, { onConflict: "shop_id" })
+      .select(MEMO_COLUMNS)
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
   function openModal(shop) {
     const modal = document.getElementById("reportModal");
     if (!modal) return;
@@ -168,7 +209,9 @@
     signIn,
     signOut,
     listAdminReports,
-    updateAdminReport
+    updateAdminReport,
+    getShopMemo,
+    upsertShopMemo
   };
 
   window.ReportUI = {
