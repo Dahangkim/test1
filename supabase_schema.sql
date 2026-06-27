@@ -75,6 +75,7 @@ returns void
 language plpgsql
 security definer
 set search_path = public
+set row_security = off
 as $$
 begin
   insert into public.reports (
@@ -100,6 +101,8 @@ begin
 end;
 $$;
 
+alter function public.submit_public_report(text,text,text,text,text,text,text) owner to postgres;
+revoke all on function public.submit_public_report(text,text,text,text,text,text,text) from public;
 grant execute on function public.submit_public_report(text,text,text,text,text,text,text) to anon, authenticated;
 
 create or replace function public.is_reports_admin()
@@ -123,7 +126,7 @@ drop policy if exists "public can insert pending reports" on public.reports;
 create policy "public can insert pending reports"
 on public.reports
 for insert
-to anon, authenticated
+to public
 with check (true);
 
 drop policy if exists "public can read approved reports" on public.reports;
