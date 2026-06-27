@@ -199,6 +199,18 @@
     return data || [];
   }
 
+  async function listReflectedFieldNotes() {
+    if (!isReady()) return [];
+    const { data, error } = await requireClient()
+      .from(FIELD_NOTE_TABLE)
+      .select(FIELD_NOTE_COLUMNS)
+      .eq("status", "reflected")
+      .order("reviewed_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return data || [];
+  }
+
   async function updateFieldNote(id, updates) {
     const row = {
       status: updates.status,
@@ -281,6 +293,7 @@
     upsertShopMemo,
     submitFieldNote,
     listFieldNotes,
+    listReflectedFieldNotes,
     updateFieldNote
   };
 

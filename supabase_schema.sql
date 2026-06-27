@@ -303,6 +303,13 @@ for select
 to authenticated
 using (public.is_reports_admin());
 
+drop policy if exists "public can read reflected field notes" on public.field_notes;
+create policy "public can read reflected field notes"
+on public.field_notes
+for select
+to anon, authenticated
+using (status = 'reflected');
+
 drop policy if exists "admins can update field notes" on public.field_notes;
 create policy "admins can update field notes"
 on public.field_notes
