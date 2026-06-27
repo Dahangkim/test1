@@ -4,7 +4,23 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>제주 유흥주점 실태조사 예비분석 대시보드</title>
-<link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-Z4ZZJES63G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-Z4ZZJES63G');
+</script>
+<!-- Microsoft Clarity -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "xdkzp5j7bk");
+</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -43,7 +59,7 @@ input,select,textarea{border:1.5px solid var(--line);padding:9px 10px;font-famil
 </style>
 </head>
 <body>
-<header><div class="wrap brand"><div><h1>제주 유흥주점 실태조사 예비분석 대시보드</h1><div class="sub">공공데이터 인허가 기록으로 지역별 분포, 영업상태, 변화 추이를 확인합니다. · 범위: 제주특별자치도 / 업종: 유흥주점영업</div></div><div class="logo-slot"><img src="./logo.svg" alt="해냄 로고"></div></div></header>
+<header><div class="wrap brand"><div><h1>제주 유흥주점 실태조사 예비분석 대시보드</h1><div class="sub">공공데이터 인허가 기록으로 지역별 분포, 영업상태, 변화 추이를 확인합니다. · 범위: 제주특별자치도 / 업종: 유흥주점영업</div></div></div></header>
 <main>
 <section class="grid kpis"><div class="card"><div class="kpi-label">영업 중</div><div class="kpi-val" id="kpiActive">-</div><div class="kpi-note">현재 영업 상태 기록</div></div><div class="card"><div class="kpi-label">누적 인허가</div><div class="kpi-val" id="kpiTotal">-</div><div class="kpi-note">폐업 포함 전체 기록</div></div><div class="card"><div class="kpi-label">폐업 기록</div><div class="kpi-val" id="kpiClosed">-</div><div class="kpi-note">폐업 상태 기록</div></div><div class="card"><div class="kpi-label">최근 5년 신규</div><div class="kpi-val" id="kpiRecent">-</div><div class="kpi-note">2022년 이후 허가</div></div></section>
 <section class="grid layout"><div class="card"><div class="toolbar"><button id="status-active" onclick="setStatus('영업중')">최종 영업 중</button><button id="status-all" class="active" onclick="setStatus('ALL')">최종 전체</button><button id="status-closed" onclick="setStatus('폐업')">최종 폐업</button><button id="city-all" class="active" onclick="setCity('ALL')">제주 전체</button><button id="city-jeju" onclick="setCity('제주시')">제주시</button><button id="city-seogwipo" onclick="setCity('서귀포시')">서귀포시</button><button onclick="showMyLocation()">내 위치</button><button onclick="resetAll()">초기화</button></div><div class="yearbar"><div class="yearbar-top"><div><div class="yearbar-title">기준연도 슬라이더</div><div class="micro">선택 연도 기준 영업·신규·폐업 상태를 지도와 표에 반영</div></div><div class="yearbar-year"><span id="yearValue">2026</span>년</div></div><input id="yearSlider" type="range" min="1966" max="2026" value="2026" oninput="setYear(this.value)"><div class="state-filters"><button id="tf-newOpen" class="active" onclick="toggleTimeFilter('newOpen')"><span class="legend-dot dot-new"></span>기준연도 신규</button><button id="tf-active" class="active" onclick="toggleTimeFilter('active')"><span class="legend-dot dot-active"></span>영업 중</button><button id="tf-closedThis" class="active" onclick="toggleTimeFilter('closedThis')"><span class="legend-dot dot-closed-this"></span>기준연도 폐업</button><button id="tf-alreadyClosed" class="active" onclick="toggleTimeFilter('alreadyClosed')"><span class="legend-dot dot-old-closed"></span>기존 폐업</button></div></div><div class="map-wrap"><div class="map-label" id="mapLabel"><b>제주 전체</b><span>지역을 클릭해 상세 분석</span></div><div id="map"></div><div id="floatingShop" class="floating-shop"></div></div></div>
@@ -51,6 +67,10 @@ input,select,textarea{border:1.5px solid var(--line);padding:9px 10px;font-famil
 <div class="card"><div class="tabs"><button id="tabBtnShops" class="active" onclick="tab('shops')">업소 목록</button><button id="tabBtnDetail" onclick="tab('detail')">업소 상세</button><button id="tabBtnMemo" onclick="tab('memo')">반영된 조사메모</button></div><div id="tab-shops" class="tabbody on"><div class="toolbar"><button id="lf-active" class="active" onclick="setListFilter('active')">영업 중</button><button id="lf-all" onclick="setListFilter('ALL')">전체</button><button id="lf-newOpen" onclick="setListFilter('newOpen')">기준연도 신규</button><button id="lf-closedThis" onclick="setListFilter('closedThis')">기준연도 폐업</button><button id="lf-alreadyClosed" onclick="setListFilter('alreadyClosed')">기존 폐업</button></div><div class="toolbar"><input id="shopSearch" type="search" placeholder="업소명·주소·행정동 검색" oninput="renderShopList()"></div><div class="toolbar"><select id="sortSelect" onchange="renderShopList()"><option value="openDesc">허가일 최신순</option><option value="openAsc">허가일 오래된순</option><option value="name">업소명순</option></select><button type="button" onclick="clearShopSearch()">검색 초기화</button></div><div class="micro" id="shopSearchHint" style="margin:4px 0 8px">검색은 현재 선택 지역 안에서 업소명·주소·행정동을 찾습니다.</div><div class="list" id="shopList"></div></div><div id="tab-detail" class="tabbody"><div id="shopDetail" class="micro">지도 또는 목록에서 업소를 선택하세요.</div></div><div id="tab-memo" class="tabbody"><dl id="memoTarget" class="detail-line"><dt>대상</dt><dd>선택된 업소 없음</dd></dl><div class="notice">활동가 조사메모는 Supabase에 접수되고, 관리자가 reflected로 반영한 내용만 이곳에 표시됩니다.</div><div class="memo-tools"><button class="lime" onclick="openFieldNoteForShop()">활동가 조사메모 접수</button><button onclick="loadReflectedFieldNotes()">새로고침</button></div><div id="memoResult" class="report-list"><div class="micro" style="padding:10px 0">업소를 선택하면 반영된 조사메모가 표시됩니다.</div></div></div></div><div class="card"><div class="panel-title"><h2>연도별 변화</h2><span class="micro" id="chartLabel">제주 전체</span></div><div style="height:240px"><canvas id="trendChart"></canvas></div></div></div></section>
 <section class="card" style="margin-top:12px"><div class="panel-title"><h2>지역별 예비분석 표</h2><span class="micro" id="dongTableScope">2026년 기준 / 표 전용 필터</span></div><div class="table-filters"><div class="filter-group"><span class="filter-label">비교 범위</span><button id="dt-city-all" class="active" onclick="setDongTableCity('ALL')">제주 전체</button><button id="dt-city-jeju" onclick="setDongTableCity('제주시')">제주시</button><button id="dt-city-seogwipo" onclick="setDongTableCity('서귀포시')">서귀포시</button></div><div class="filter-group"><span class="filter-label">조건 필터</span><button id="dt-filter-all" class="active" onclick="setDongTableFilter('ALL')">전체 지역</button><button id="dt-filter-active" onclick="setDongTableFilter('activeOnly')">영업 중 있음</button><button id="dt-filter-changed" onclick="setDongTableFilter('changed')">기준연도 변동 있음</button><button id="dt-filter-dense" onclick="setDongTableFilter('denseTop10')">1만명당 상위 10</button></div></div><div style="overflow:auto;max-height:360px"><table class="table" id="dongTable"></table></div><div class="micro" style="margin-top:8px" id="populationSourceNote"></div></section>
 </main>
+<footer class="wrap" style="padding:14px 18px;color:var(--muted);font-size:11px;line-height:1.6;border-top:1px solid var(--line);margin-top:8px">
+<p>본 사이트는 방문 통계 분석을 위해 Google Analytics를 사용합니다.</p>
+<p>© 제주현장상담센터 해냄. 본 대시보드의 기획·제작 저작권은 해냄에 있습니다.</p>
+</footer>
 <div class="report-modal" id="reportModal" aria-hidden="true"><div class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle"><h2 id="reportModalTitle">업소 정보 제보</h2><form class="report-form" id="reportForm"><input type="hidden" id="reportShopId"><label>업소명<input id="reportShopName" readonly></label><label>주소<input id="reportShopAddress" readonly></label><label>제보 유형<select id="reportType" required><option value="">선택</option><option value="현장정보">현장정보</option><option value="영업상태">영업상태</option><option value="주소/위치">주소/위치</option><option value="온라인광고">온라인광고</option><option value="기타">기타</option></select></label><label>제보 내용<textarea id="reportContent" required placeholder="공개 가능한 범위의 사실 중심 정보만 입력하세요. 상담기록, 내담자 개인정보, 내부자료는 입력하지 마세요."></textarea></label><label>출처 URL<input id="reportSourceUrl" type="url" placeholder="https://"></label><label>연락처<input id="reporterContact" placeholder="선택 입력. 공개되지 않으며 검토 목적에만 사용"></label><div class="notice">상담기록, 내담자 개인정보, 내부자료, 사건 관계자 식별정보는 입력하지 마세요. 접수된 제보는 관리자 승인 후 공개됩니다.</div><div class="report-status" id="reportSubmitStatus"></div><div class="report-dialog-actions"><button type="button" onclick="window.ReportUI?.closeModal()">닫기</button><button class="lime" type="submit">제보 제출</button></div></form></div></div>
 <script>
 const POPULATION_SOURCE = '행정안전부 주민등록 인구통계 읍면동 주민등록 인구 기준';
