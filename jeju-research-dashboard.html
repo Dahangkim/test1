@@ -10,8 +10,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script defer src="./config.js"></script>
-<script defer src="./js/supabase-client.js"></script>
-<script defer src="./js/reports.js"></script>
+<script defer src="./js/supabase-client.js?v=20260627-location"></script>
+<script defer src="./js/reports.js?v=20260627-location"></script>
 <style>
 :root{--white:#fff;--ink:#07111f;--muted:#64748b;--line:#dbe7ff;--blue:#0047ff;--lime:#ccff00;--pale:#f6f9ff;--gray:#edf2f7;--red:#e11d48}
 *{box-sizing:border-box} body{margin:0;font-family:Pretendard,SUIT,"Wanted Sans","Noto Sans KR",system-ui,sans-serif;background:#fff;color:var(--ink)}
@@ -68,7 +68,7 @@ function fieldNotesForShop(s){const id=shopId(s);return reflectedFieldNotes.filt
 function renderApprovedReports(s){const rows=reportsForShop(s);if(!rows.length)return '<div class="micro" style="margin-top:10px">승인된 제보가 없습니다.</div>';return `<div class="report-list">${rows.map(r=>`<div class="report-item"><b>${esc(r.report_type||'제보')}</b><div>${esc(r.report_content||'')}</div>${r.source_url?`<div><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처 보기</a></div>`:''}<div class="micro">승인 제보 · ${esc((r.reviewed_at||r.created_at||'').slice(0,10))}</div></div>`).join('')}</div>`;}
 function renderReflectedFieldNotes(s){const rows=s?fieldNotesForShop(s):[];if(!s)return '<div class="micro" style="padding:10px 0">업소를 선택하면 반영된 조사메모가 표시됩니다.</div>';if(!rows.length)return '<div class="micro" style="padding:10px 0">관리자가 반영한 조사메모가 아직 없습니다.</div>';return rows.map(r=>`<div class="report-item"><b>${esc(r.field_check||'현장확인 미기재')} · ${esc(r.open_guess||'영업추정 미기재')}</b><div>${esc(r.memo_text||'')}</div>${r.online_ad?`<div class="micro">온라인 광고: ${esc(r.online_ad)}</div>`:''}${r.source_url?`<div><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처 보기</a></div>`:''}<div class="micro">조사일 ${esc(r.investigation_date||'미기재')} · 접수 ${esc(fmtDateTime(r.created_at)||'미기재')} · 관리자 반영 ${esc(fmtDateTime(r.reviewed_at||r.updated_at||r.created_at)||'미기재')}</div></div>`).join('');}
 function openReportModalForShop(){if(!selectedShop)return alert('먼저 업소를 선택하세요.');window.ReportUI?.openModal({shopId:shopId(selectedShop),shopName:selectedShop.name,shopAddress:selectedShop.address});}
-function openFieldNoteForShop(){if(!selectedShop)return alert('먼저 업소를 선택하세요.');const p=new URLSearchParams({shopId:shopId(selectedShop),shopName:selectedShop.name||'',shopAddress:selectedShop.address||'',dong:selectedShop.dong||''});window.open('./field-note.html?'+p.toString(),'_blank','noopener');}
+function openFieldNoteForShop(){if(!selectedShop)return alert('먼저 업소를 선택하세요.');const p=new URLSearchParams({v:'20260627-location',shopId:shopId(selectedShop),shopName:selectedShop.name||'',shopAddress:selectedShop.address||'',dong:selectedShop.dong||''});window.open('./field-note.html?'+p.toString(),'_blank','noopener');}
 async function loadApprovedReports(){if(!window.ReportService?.isReady())return;try{approvedReports=await window.ReportService.listApprovedReports();renderMarkers();renderShopDetail();renderFloatingShop();}catch(err){console.warn('approved reports load failed',err);}}
 async function loadReflectedFieldNotes(){if(!window.ReportService?.isReady())return;try{reflectedFieldNotes=await window.ReportService.listReflectedFieldNotes();renderMemoPanel();}catch(err){console.warn('reflected field notes load failed',err);}}
 function getDong(n){return DONG_DATA.find(d=>d.name===n)} function cityOfDong(n){return getDong(n)?.city||''}

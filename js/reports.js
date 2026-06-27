@@ -183,23 +183,7 @@
       throw new Error("업소를 선택하거나 업소명과 주소를 입력하세요.");
     }
     const { error } = await requireClient()
-      .rpc("submit_field_note", {
-        p_shop_id: row.shop_id,
-        p_shop_name: row.shop_name,
-        p_shop_address: row.shop_address,
-        p_dong: row.dong,
-        p_investigator_name: row.investigator_name,
-        p_investigation_date: row.investigation_date,
-        p_field_check: row.field_check,
-        p_open_guess: row.open_guess,
-        p_online_ad: row.online_ad,
-        p_source_url: row.source_url,
-        p_memo_text: row.memo_text,
-        p_field_lat: row.field_lat,
-        p_field_lon: row.field_lon,
-        p_field_accuracy_m: row.field_accuracy_m,
-        p_field_location_captured_at: row.field_location_captured_at
-      });
+      .rpc("submit_field_note_v2", { p_note: row });
     if (error) throw error;
     return { status: "submitted" };
   }

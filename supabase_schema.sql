@@ -243,6 +243,57 @@ alter function public.submit_field_note(text,text,text,text,text,text,text,text,
 revoke all on function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text,double precision,double precision,double precision,text) from public;
 grant execute on function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text,double precision,double precision,double precision,text) to anon, authenticated;
 
+create or replace function public.submit_field_note_v2(p_note jsonb)
+returns void
+language plpgsql
+security definer
+set search_path = public
+set row_security = off
+as $$
+begin
+  insert into public.field_notes (
+    shop_id,
+    shop_name,
+    shop_address,
+    dong,
+    investigator_name,
+    investigation_date,
+    field_check,
+    open_guess,
+    online_ad,
+    source_url,
+    memo_text,
+    field_lat,
+    field_lon,
+    field_accuracy_m,
+    field_location_captured_at,
+    status
+  )
+  values (
+    nullif(trim(p_note->>'shop_id'), ''),
+    nullif(trim(p_note->>'shop_name'), ''),
+    nullif(trim(p_note->>'shop_address'), ''),
+    nullif(trim(p_note->>'dong'), ''),
+    nullif(trim(p_note->>'investigator_name'), ''),
+    nullif(trim(p_note->>'investigation_date'), '')::date,
+    nullif(trim(p_note->>'field_check'), ''),
+    nullif(trim(p_note->>'open_guess'), ''),
+    nullif(trim(p_note->>'online_ad'), ''),
+    nullif(trim(p_note->>'source_url'), ''),
+    nullif(trim(p_note->>'memo_text'), ''),
+    nullif(trim(p_note->>'field_lat'), '')::double precision,
+    nullif(trim(p_note->>'field_lon'), '')::double precision,
+    nullif(trim(p_note->>'field_accuracy_m'), '')::double precision,
+    nullif(trim(p_note->>'field_location_captured_at'), '')::timestamptz,
+    'submitted'
+  );
+end;
+$$;
+
+alter function public.submit_field_note_v2(jsonb) owner to postgres;
+revoke all on function public.submit_field_note_v2(jsonb) from public;
+grant execute on function public.submit_field_note_v2(jsonb) to anon, authenticated;
+
 create or replace function public.delete_admin_report(p_id uuid)
 returns void
 language plpgsql
