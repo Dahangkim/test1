@@ -49,6 +49,31 @@ create table if not exists public.shop_memos (
 create index if not exists shop_memos_dong_idx on public.shop_memos(dong);
 create index if not exists shop_memos_updated_at_idx on public.shop_memos(updated_at desc);
 
+create table if not exists public.field_notes (
+  id uuid primary key default gen_random_uuid(),
+  shop_id text not null,
+  shop_name text not null,
+  shop_address text not null,
+  dong text,
+  investigator_name text,
+  investigation_date date,
+  field_check text,
+  open_guess text,
+  online_ad text,
+  source_url text,
+  memo_text text,
+  status text not null default 'submitted' check (status in ('submitted','reviewing','reflected','archived','private')),
+  admin_memo text,
+  reviewed_at timestamptz,
+  reviewed_by uuid references auth.users(id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists field_notes_status_idx on public.field_notes(status);
+create index if not exists field_notes_shop_id_idx on public.field_notes(shop_id);
+create index if not exists field_notes_created_at_idx on public.field_notes(created_at desc);
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -68,6 +93,12 @@ execute function public.set_updated_at();
 drop trigger if exists shop_memos_set_updated_at on public.shop_memos;
 create trigger shop_memos_set_updated_at
 before update on public.shop_memos
+for each row
+execute function public.set_updated_at();
+
+drop trigger if exists field_notes_set_updated_at on public.field_notes;
+create trigger field_notes_set_updated_at
+before update on public.field_notes
 for each row
 execute function public.set_updated_at();
 
@@ -133,6 +164,61 @@ alter function public.submit_public_report(text,text,text,text,text,text,text) o
 revoke all on function public.submit_public_report(text,text,text,text,text,text,text) from public;
 grant execute on function public.submit_public_report(text,text,text,text,text,text,text) to anon, authenticated;
 
+create or replace function public.submit_field_note(
+  p_shop_id text,
+  p_shop_name text,
+  p_shop_address text,
+  p_dong text default null,
+  p_investigator_name text default null,
+  p_investigation_date text default null,
+  p_field_check text default null,
+  p_open_guess text default null,
+  p_online_ad text default null,
+  p_source_url text default null,
+  p_memo_text text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+set row_security = off
+as $$
+begin
+  insert into public.field_notes (
+    shop_id,
+    shop_name,
+    shop_address,
+    dong,
+    investigator_name,
+    investigation_date,
+    field_check,
+    open_guess,
+    online_ad,
+    source_url,
+    memo_text,
+    status
+  )
+  values (
+    nullif(trim(p_shop_id), ''),
+    nullif(trim(p_shop_name), ''),
+    nullif(trim(p_shop_address), ''),
+    nullif(trim(p_dong), ''),
+    nullif(trim(p_investigator_name), ''),
+    nullif(trim(p_investigation_date), '')::date,
+    nullif(trim(p_field_check), ''),
+    nullif(trim(p_open_guess), ''),
+    nullif(trim(p_online_ad), ''),
+    nullif(trim(p_source_url), ''),
+    nullif(trim(p_memo_text), ''),
+    'submitted'
+  );
+end;
+$$;
+
+alter function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text) owner to postgres;
+revoke all on function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text) from public;
+grant execute on function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text) to anon, authenticated;
+
 create or replace function public.is_reports_admin()
 returns boolean
 language sql
@@ -150,6 +236,7 @@ $$;
 alter table public.reports enable row level security;
 alter table public.admin_profiles enable row level security;
 alter table public.shop_memos enable row level security;
+alter table public.field_notes enable row level security;
 
 drop policy if exists "public can insert pending reports" on public.reports;
 create policy "public can insert pending reports"
@@ -204,6 +291,21 @@ with check (public.is_reports_admin());
 drop policy if exists "admins can update shop memos" on public.shop_memos;
 create policy "admins can update shop memos"
 on public.shop_memos
+for update
+to authenticated
+using (public.is_reports_admin())
+with check (public.is_reports_admin());
+
+drop policy if exists "admins can read field notes" on public.field_notes;
+create policy "admins can read field notes"
+on public.field_notes
+for select
+to authenticated
+using (public.is_reports_admin());
+
+drop policy if exists "admins can update field notes" on public.field_notes;
+create policy "admins can update field notes"
+on public.field_notes
 for update
 to authenticated
 using (public.is_reports_admin())

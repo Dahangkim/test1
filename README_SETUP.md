@@ -10,6 +10,7 @@
 
 - `jeju-research-dashboard.html`: 공개 대시보드
 - `admin.html`: 관리자 제보 검토 페이지
+- `field-note.html`: 활동가 조사메모 입력 페이지
 - `js/supabase-client.js`: Supabase 클라이언트 초기화
 - `js/reports.js`: 제보 접수, 승인 제보 조회, 관리자 처리 로직
 - `config.example.js`: 설정 예시
@@ -57,6 +58,8 @@ window.JEJU_DASHBOARD_CONFIG = {
 상담기록, 내담자 개인정보, 사건 관계자 식별정보, 내부 회의자료, 비공개 조사자료를 공개 저장소나 공개 제보 데이터에 넣지 마세요.
 
 제보 폼의 `reporter_contact`는 관리자 검토용입니다. 공개 대시보드는 `status='approved'`인 제보만 읽으며, 연락처와 관리자 메모는 공개 조회 컬럼에 포함하지 않습니다.
+
+활동가 조사메모는 `field-note.html`에서 로그인 없이 접수할 수 있습니다. 접수된 메모는 공개 대시보드에 표시되지 않고 `admin.html`의 활동가 메모 탭에서만 검토합니다.
 
 ## 관리자 상태값
 
