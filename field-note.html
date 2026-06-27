@@ -56,10 +56,11 @@ function shopId(s){return [s.name,s.address,s.openDate,s.closeDate].join("|")}
 async function loadShops(){
   try{
     const html=await fetch("./jeju-research-dashboard.html").then(r=>r.text());
-    const match=html.match(/const SHOP_DATA = (\\[.*?\\]);\\nconst CURRENT_YEAR/s);
+    const match=html.match(/const SHOP_DATA = (\[.*?\]);\nconst YEAR_SERIES/s);
     if(!match) throw new Error("업소 데이터를 찾지 못했습니다.");
     shops=JSON.parse(match[1]);
     renderResults("");
+    applyUrlParams();
   }catch(err){
     document.getElementById("shopResults").innerHTML=`<div class="status" style="padding:10px">업소 검색 데이터를 불러오지 못했습니다. 업소명과 주소를 직접 입력하세요.</div>`;
   }
@@ -78,6 +79,19 @@ function selectShop(id){
   document.getElementById("shopName").value=s.name||"";
   document.getElementById("shopAddress").value=s.address||"";
   document.getElementById("dong").value=s.dong||"";
+}
+
+function applyUrlParams(){
+  const params=new URLSearchParams(location.search);
+  const id=params.get("shopId");
+  if(id&&shops.length){
+    selectShop(id);
+    return;
+  }
+  if(id)document.getElementById("shopId").value=id;
+  if(params.get("shopName"))document.getElementById("shopName").value=params.get("shopName");
+  if(params.get("shopAddress"))document.getElementById("shopAddress").value=params.get("shopAddress");
+  if(params.get("dong"))document.getElementById("dong").value=params.get("dong");
 }
 
 window.addEventListener("DOMContentLoaded",()=>{
