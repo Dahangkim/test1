@@ -38,8 +38,15 @@
       throw new Error("업소 정보, 제보 유형, 제보 내용을 확인하세요.");
     }
     const { error } = await requireClient()
-      .from(TABLE)
-      .insert(row);
+      .rpc("submit_public_report", {
+        p_shop_id: row.shop_id,
+        p_shop_name: row.shop_name,
+        p_shop_address: row.shop_address,
+        p_report_type: row.report_type,
+        p_report_content: row.report_content,
+        p_source_url: row.source_url,
+        p_reporter_contact: row.reporter_contact
+      });
     if (error) throw error;
     return { status: "pending" };
   }

@@ -62,6 +62,46 @@ before insert on public.reports
 for each row
 execute function public.prepare_public_report_insert();
 
+create or replace function public.submit_public_report(
+  p_shop_id text,
+  p_shop_name text,
+  p_shop_address text,
+  p_report_type text,
+  p_report_content text,
+  p_source_url text default null,
+  p_reporter_contact text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.reports (
+    shop_id,
+    shop_name,
+    shop_address,
+    report_type,
+    report_content,
+    source_url,
+    reporter_contact,
+    status
+  )
+  values (
+    nullif(trim(p_shop_id), ''),
+    nullif(trim(p_shop_name), ''),
+    nullif(trim(p_shop_address), ''),
+    nullif(trim(p_report_type), ''),
+    nullif(trim(p_report_content), ''),
+    nullif(trim(p_source_url), ''),
+    nullif(trim(p_reporter_contact), ''),
+    'pending'
+  );
+end;
+$$;
+
+grant execute on function public.submit_public_report(text,text,text,text,text,text,text) to anon, authenticated;
+
 create or replace function public.is_reports_admin()
 returns boolean
 language sql
