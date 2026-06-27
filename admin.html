@@ -81,12 +81,6 @@ function renderRows(rows){
     </tr>`).join("")+"</tbody>";
 }
 
-function renderFieldLocation(r){
-  if (r.field_lat == null || r.field_lon == null) return `<br><span class="status">첨부 위치 없음</span>`;
-  const coords=`${r.field_lat},${r.field_lon}`;
-  return `<br><a href="https://maps.google.com/?q=${encodeURIComponent(coords)}" target="_blank" rel="noopener">첨부 위치 보기</a><br><span class="status">좌표 ${esc(Number(r.field_lat).toFixed(6))}, ${esc(Number(r.field_lon).toFixed(6))} · 정확도 약 ${esc(Math.round(r.field_accuracy_m||0))}m · ${esc(fmtDateTime(r.field_location_captured_at))}</span>`;
-}
-
 function renderFieldNotes(rows){
   currentRows=rows;
   const table=document.getElementById("fieldNotesTable");
@@ -95,7 +89,7 @@ function renderFieldNotes(rows){
       <td><span class="badge ${esc(r.status)}">${esc(r.status)}</span><br><span>접수 ${esc(fmtDateTime(r.created_at))}</span></td>
       <td><b>${esc(r.shop_name)}</b><br>${esc(r.shop_address)}<br><span>${esc(r.dong||"")} · ${esc(r.shop_id)}</span></td>
       <td>${esc(r.investigator_name||"")}<br><span>${esc(r.investigation_date||"")}</span></td>
-      <td><b>${esc(r.field_check||"")}</b> / ${esc(r.open_guess||"")} / ${esc(r.online_ad||"")}<br>${esc(r.memo_text||"")}${r.source_url?`<br><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처</a>`:""}${renderFieldLocation(r)}</td>
+      <td><b>${esc(r.field_check||"")}</b> / ${esc(r.open_guess||"")} / ${esc(r.online_ad||"")}<br>${esc(r.memo_text||"")}${r.source_url?`<br><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처</a>`:""}<br><span class="status">접수시간 ${esc(fmtDateTime(r.created_at))}</span></td>
       <td><textarea id="field-memo-${r.id}">${esc(r.admin_memo||"")}</textarea></td>
       <td><div class="grid"><select id="field-status-${r.id}">${fieldStatuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveFieldNote('${r.id}')">저장</button><button type="button" onclick="deleteFieldNote('${r.id}')">메모 삭제</button><span class="status">${esc(fmtDateTime(r.reviewed_at))}</span></div></td>
     </tr>`).join("")+"</tbody>";

@@ -6,7 +6,7 @@
   const ADMIN_COLUMNS = "id,shop_id,shop_name,shop_address,report_type,report_content,source_url,reporter_contact,status,admin_memo,created_at,updated_at,reviewed_at,reviewed_by";
   const MEMO_COLUMNS = "shop_id,shop_name,dong,address,status,open_date,close_date,field_check,open_guess,online_ad,source_url,memo_text,created_at,updated_at,created_by,updated_by";
   const FIELD_NOTE_PUBLIC_COLUMNS = "id,shop_id,shop_name,shop_address,dong,investigator_name,investigation_date,field_check,open_guess,online_ad,source_url,memo_text,status,created_at,updated_at,reviewed_at";
-  const FIELD_NOTE_COLUMNS = "id,shop_id,shop_name,shop_address,dong,investigator_name,investigation_date,field_check,open_guess,online_ad,source_url,memo_text,field_lat,field_lon,field_accuracy_m,field_location_captured_at,status,admin_memo,created_at,updated_at,reviewed_at,reviewed_by";
+  const FIELD_NOTE_COLUMNS = "id,shop_id,shop_name,shop_address,dong,investigator_name,investigation_date,field_check,open_guess,online_ad,source_url,memo_text,status,admin_memo,created_at,updated_at,reviewed_at,reviewed_by";
 
   function client() {
     return window.JejuSupabase?.client || null;
@@ -173,11 +173,7 @@
       open_guess: String(payload.openGuess || "").trim() || null,
       online_ad: String(payload.online || "").trim() || null,
       source_url: String(payload.source || "").trim() || null,
-      memo_text: String(payload.text || "").trim() || null,
-      field_lat: payload.fieldLat === "" || payload.fieldLat == null ? null : Number(payload.fieldLat),
-      field_lon: payload.fieldLon === "" || payload.fieldLon == null ? null : Number(payload.fieldLon),
-      field_accuracy_m: payload.fieldAccuracy === "" || payload.fieldAccuracy == null ? null : Number(payload.fieldAccuracy),
-      field_location_captured_at: String(payload.fieldLocationCapturedAt || "").trim() || null
+      memo_text: String(payload.text || "").trim() || null
     };
     if (!row.shop_id || !row.shop_name || !row.shop_address) {
       throw new Error("업소를 선택하거나 업소명과 주소를 입력하세요.");

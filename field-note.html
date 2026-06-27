@@ -42,12 +42,6 @@
       <label>온라인 광고<select id="online"><option value="">선택 안 함</option><option>없음</option><option>발견</option><option>확인 필요</option></select></label>
       <label>출처 링크/확인 경로<input id="source" placeholder="URL 또는 확인 경로"></label>
     </div>
-    <div class="notice">위치정보는 활동가가 직접 버튼을 눌러 허용한 경우에만 함께 접수됩니다. 공개 대시보드에는 표시하지 않고 관리자 검토용으로만 사용하세요.</div>
-    <div class="two grid">
-      <button type="button" onclick="captureLocation()">내 위치 첨부</button>
-      <button type="button" onclick="clearLocation()">위치 지우기</button>
-    </div>
-    <div class="status" id="locationStatus">위치정보가 첨부되지 않았습니다.</div>
     <label>조사 메모<textarea id="memoText" placeholder="사실과 판단을 구분해 적어주세요. 개인정보는 입력하지 마세요."></textarea></label>
     <div class="status" id="submitStatus"></div>
     <button class="lime" type="submit">조사메모 접수</button>
@@ -57,7 +51,6 @@
 <script>
 const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
 let shops=[];
-let fieldLocation=null;
 
 function shopId(s){return [s.name,s.address,s.openDate,s.closeDate].join("|")}
 
@@ -102,31 +95,6 @@ function applyUrlParams(){
   if(params.get("dong"))document.getElementById("dong").value=params.get("dong");
 }
 
-function captureLocation(){
-  const status=document.getElementById("locationStatus");
-  if(!navigator.geolocation){
-    status.textContent="이 브라우저에서는 현재 위치를 확인할 수 없습니다.";
-    return;
-  }
-  status.textContent="현재 위치를 확인하는 중입니다.";
-  navigator.geolocation.getCurrentPosition(pos=>{
-    fieldLocation={
-      lat:pos.coords.latitude,
-      lon:pos.coords.longitude,
-      accuracy:pos.coords.accuracy,
-      capturedAt:new Date().toISOString()
-    };
-    status.textContent=`위치 첨부됨 · 정확도 약 ${Math.round(pos.coords.accuracy)}m`;
-  },err=>{
-    status.textContent=err.code===1?"위치 권한이 허용되지 않았습니다.":"현재 위치를 확인하지 못했습니다.";
-  },{enableHighAccuracy:true,timeout:10000,maximumAge:30000});
-}
-
-function clearLocation(){
-  fieldLocation=null;
-  document.getElementById("locationStatus").textContent="위치정보가 첨부되지 않았습니다.";
-}
-
 window.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("investigationDate").value=new Date().toISOString().slice(0,10);
   document.getElementById("shopSearch").addEventListener("input",e=>renderResults(e.target.value));
@@ -148,15 +116,10 @@ window.addEventListener("DOMContentLoaded",()=>{
         openGuess:document.getElementById("openGuess").value,
         online:document.getElementById("online").value,
         source:document.getElementById("source").value,
-        text:document.getElementById("memoText").value,
-        fieldLat:fieldLocation?.lat,
-        fieldLon:fieldLocation?.lon,
-        fieldAccuracy:fieldLocation?.accuracy,
-        fieldLocationCapturedAt:fieldLocation?.capturedAt
+        text:document.getElementById("memoText").value
       });
       status.textContent="접수되었습니다.";
       e.target.reset();
-      clearLocation();
       document.getElementById("investigationDate").value=new Date().toISOString().slice(0,10);
     }catch(err){
       status.textContent=err.message||"접수하지 못했습니다.";
