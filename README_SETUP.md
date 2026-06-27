@@ -4,7 +4,7 @@
 
 이 폴더는 GitHub Pages에서 동작하는 정적 HTML/JS 구조입니다. Supabase는 제보 저장, 승인 제보 공개 조회, 관리자 검토 기능에만 사용합니다.
 
-실제 `config.js`에는 Supabase URL과 anon key가 들어가므로 공개 저장소에 커밋하지 마세요.
+실제 `config.js`에는 Supabase URL과 publishable key가 들어갑니다. GitHub Pages에서 바로 동작하게 하려면 `config.js`를 함께 배포할 수 있습니다. 단, service_role key, secret key, 데이터베이스 비밀번호는 절대 넣지 마세요.
 
 ## 파일 구성
 
@@ -22,7 +22,7 @@
 3. Supabase Auth에서 관리자 이메일 계정을 만듭니다.
 4. `auth.users`의 관리자 `user_id`를 확인한 뒤 `admin_profiles`에 추가합니다.
 5. `config.example.js`를 복사해 `config.js`를 만들고 실제 값을 입력합니다.
-6. GitHub Pages에 올릴 때 `config.js`가 공개 저장소에 커밋되지 않도록 `.gitignore`에 추가합니다.
+6. GitHub Pages에 올릴 때 `config.js`를 함께 배포하면 공개 페이지에서 Supabase 연결이 바로 동작합니다.
 
 ## GitHub Pages 배포 설정
 
