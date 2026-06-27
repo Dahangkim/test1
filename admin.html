@@ -11,7 +11,7 @@
 <script defer src="./js/reports.js?v=20260627-location"></script>
 <style>
 :root{--white:#fff;--ink:#07111f;--muted:#64748b;--line:#dbe7ff;--blue:#0047ff;--lime:#ccff00;--pale:#f6f9ff;--red:#e11d48}
-*{box-sizing:border-box}body{margin:0;font-family:Pretendard,SUIT,"Noto Sans KR",system-ui,sans-serif;color:var(--ink);background:#fff}header{border-bottom:2px solid var(--blue);background:#fff;position:sticky;top:0;z-index:10}.wrap{max-width:1280px;margin:0 auto;padding:16px 18px}h1{margin:0;color:var(--blue);font-size:23px;font-weight:950;letter-spacing:-.04em}.sub{margin-top:6px;color:var(--muted);font-size:12px;font-weight:750}.card{border:1.5px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-top:14px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button{border:1.5px solid var(--blue);background:#fff;color:var(--blue);font-weight:900;padding:8px 11px;border-radius:999px;cursor:pointer}button.active,button.lime{background:var(--lime);color:var(--ink);border-color:var(--ink)}input,select,textarea{border:1.5px solid var(--line);padding:9px 10px;font-family:inherit;font-size:13px;width:100%;background:#fff}textarea{min-height:78px;resize:vertical}.login{max-width:420px}.grid{display:grid;gap:10px}.two{grid-template-columns:1fr 1fr}.table-wrap{overflow:auto}.reports{width:100%;border-collapse:collapse;font-size:12px;min-width:1020px}.reports th,.reports td{border-bottom:1px solid var(--line);padding:9px;text-align:left;vertical-align:top}.reports th{color:var(--blue);background:var(--pale);font-weight:950}.badge{display:inline-block;border:1px solid var(--blue);color:var(--blue);font-weight:900;padding:2px 6px;background:#fff}.badge.pending,.badge.submitted{border-color:#f59e0b;color:#92400e}.badge.approved,.badge.reflected{background:var(--lime);color:var(--ink);border-color:var(--ink)}.badge.rejected{border-color:var(--red);color:var(--red)}.badge.private,.badge.archived{border-color:#64748b;color:#475569}.notice{background:linear-gradient(90deg,var(--pale),#fff);border-left:4px solid var(--lime);padding:10px 12px;color:#24324a;font-size:12px;line-height:1.55;font-weight:650}.spacer{flex:1}.bulk-toolbar{justify-content:flex-end}button.danger{border-color:var(--red);color:var(--red)}.status{font-size:12px;color:var(--muted);font-weight:900;margin-top:8px}.hidden{display:none}@media(max-width:800px){.two{grid-template-columns:1fr}}
+*{box-sizing:border-box}body{margin:0;font-family:Pretendard,SUIT,"Noto Sans KR",system-ui,sans-serif;color:var(--ink);background:#fff}header{border-bottom:2px solid var(--blue);background:#fff;position:sticky;top:0;z-index:10}.wrap{max-width:1280px;margin:0 auto;padding:16px 18px}h1{margin:0;color:var(--blue);font-size:23px;font-weight:950;letter-spacing:-.04em}.sub{margin-top:6px;color:var(--muted);font-size:12px;font-weight:750}.card{border:1.5px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-top:14px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button{border:1.5px solid var(--blue);background:#fff;color:var(--blue);font-weight:900;padding:8px 11px;border-radius:999px;cursor:pointer}button.active,button.lime{background:var(--lime);color:var(--ink);border-color:var(--ink)}input,select,textarea{border:1.5px solid var(--line);padding:9px 10px;font-family:inherit;font-size:13px;width:100%;background:#fff}textarea{min-height:78px;resize:vertical}.login{max-width:420px}.grid{display:grid;gap:10px}.two{grid-template-columns:1fr 1fr}.table-wrap{overflow:auto}.reports{width:100%;border-collapse:collapse;font-size:12px;min-width:1020px}.reports th,.reports td{border-bottom:1px solid var(--line);padding:9px;text-align:left;vertical-align:top}.reports th{color:var(--blue);background:var(--pale);font-weight:950}.badge{display:inline-block;border:1px solid var(--blue);color:var(--blue);font-weight:900;padding:2px 6px;background:#fff}.badge.pending,.badge.submitted{border-color:#f59e0b;color:#92400e}.badge.approved,.badge.reflected{background:var(--lime);color:var(--ink);border-color:var(--ink)}.badge.rejected{border-color:var(--red);color:var(--red)}.badge.private,.badge.archived{border-color:#64748b;color:#475569}.notice{background:linear-gradient(90deg,var(--pale),#fff);border-left:4px solid var(--lime);padding:10px 12px;color:#24324a;font-size:12px;line-height:1.55;font-weight:650}.spacer{flex:1}.bulk-toolbar{justify-content:flex-end}button.danger{border-color:var(--red);color:var(--red)}.filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--pale);border:1.5px solid var(--line);border-radius:12px;padding:8px 10px;margin-top:10px}.filter-label{font-size:11px;font-weight:950;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}.filter-sep{width:1px;height:18px;background:var(--line)}.filter-btn{padding:6px 10px;font-size:12px}.filter-btn.st-wait{border-color:#f59e0b;color:#92400e}.filter-btn.st-done{border-color:var(--ink)}.filter-btn.st-rejected{border-color:var(--red);color:var(--red)}.filter-btn.st-private{border-color:#64748b;color:#475569}.filter-btn.st-wait.active{background:#f59e0b;border-color:#f59e0b;color:#fff}.filter-btn.st-done.active{background:var(--lime);border-color:var(--ink);color:var(--ink)}.filter-btn.st-rejected.active{background:var(--red);border-color:var(--red);color:#fff}.filter-btn.st-private.active{background:#64748b;border-color:#64748b;color:#fff}.status{font-size:12px;color:var(--muted);font-weight:900;margin-top:8px}.hidden{display:none}@media(max-width:800px){.two{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -31,21 +31,28 @@
     <button id="tabFieldNotes" type="button" onclick="setAdminView('fieldNotes')">활동가 메모</button>
     <a href="./field-note.html?v=20260627-location" target="_blank" rel="noopener"><button type="button">입력 페이지 열기</button></a>
   </div>
-  <div class="toolbar" id="statusFilterGroup">
-    <button class="filter-btn active" type="button" data-status="ALL" onclick="setStatusFilter('ALL')">전체</button>
-    <button class="filter-btn" type="button" data-status="pending" onclick="setStatusFilter('pending')">pending</button>
-    <button class="filter-btn" type="button" data-status="reviewing" onclick="setStatusFilter('reviewing')">reviewing</button>
-    <button class="filter-btn" type="button" data-status="approved" onclick="setStatusFilter('approved')">approved</button>
-    <button class="filter-btn" type="button" data-status="rejected" onclick="setStatusFilter('rejected')">rejected</button>
-    <button class="filter-btn" type="button" data-status="private" onclick="setStatusFilter('private')">private</button>
-  </div>
-  <div class="toolbar hidden" id="fieldStatusFilterGroup">
-    <button class="filter-btn active" type="button" data-status="ALL" onclick="setStatusFilter('ALL')">전체</button>
-    <button class="filter-btn" type="button" data-status="submitted" onclick="setStatusFilter('submitted')">submitted</button>
-    <button class="filter-btn" type="button" data-status="reviewing" onclick="setStatusFilter('reviewing')">reviewing</button>
-    <button class="filter-btn" type="button" data-status="reflected" onclick="setStatusFilter('reflected')">reflected</button>
-    <button class="filter-btn" type="button" data-status="archived" onclick="setStatusFilter('archived')">archived</button>
-    <button class="filter-btn" type="button" data-status="private" onclick="setStatusFilter('private')">private</button>
+  <div class="filter-bar">
+    <span class="filter-label">상태</span>
+    <div class="toolbar" id="statusFilterGroup">
+      <button class="filter-btn active" type="button" data-status="ALL" onclick="setStatusFilter('ALL')">전체</button>
+      <span class="filter-sep"></span>
+      <button class="filter-btn st-wait" type="button" data-status="pending" onclick="setStatusFilter('pending')">pending</button>
+      <button class="filter-btn st-wait" type="button" data-status="reviewing" onclick="setStatusFilter('reviewing')">reviewing</button>
+      <span class="filter-sep"></span>
+      <button class="filter-btn st-done" type="button" data-status="approved" onclick="setStatusFilter('approved')">approved</button>
+      <button class="filter-btn st-rejected" type="button" data-status="rejected" onclick="setStatusFilter('rejected')">rejected</button>
+      <button class="filter-btn st-private" type="button" data-status="private" onclick="setStatusFilter('private')">private</button>
+    </div>
+    <div class="toolbar hidden" id="fieldStatusFilterGroup">
+      <button class="filter-btn active" type="button" data-status="ALL" onclick="setStatusFilter('ALL')">전체</button>
+      <span class="filter-sep"></span>
+      <button class="filter-btn st-wait" type="button" data-status="submitted" onclick="setStatusFilter('submitted')">submitted</button>
+      <button class="filter-btn st-wait" type="button" data-status="reviewing" onclick="setStatusFilter('reviewing')">reviewing</button>
+      <span class="filter-sep"></span>
+      <button class="filter-btn st-done" type="button" data-status="reflected" onclick="setStatusFilter('reflected')">reflected</button>
+      <button class="filter-btn st-private" type="button" data-status="archived" onclick="setStatusFilter('archived')">archived</button>
+      <button class="filter-btn st-private" type="button" data-status="private" onclick="setStatusFilter('private')">private</button>
+    </div>
   </div>
   <div class="toolbar">
     <button id="refreshBtn" type="button">새로고침</button>
