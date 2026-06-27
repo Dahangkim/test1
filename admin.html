@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>제주 유흥주점 실태조사 제보 관리자</title>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script defer src="./config.js"></script>
+<script defer src="./js/supabase-client.js"></script>
+<script defer src="./js/reports.js"></script>
+<style>
+:root{--white:#fff;--ink:#07111f;--muted:#64748b;--line:#dbe7ff;--blue:#0047ff;--lime:#ccff00;--pale:#f6f9ff;--red:#e11d48}
+*{box-sizing:border-box}body{margin:0;font-family:Pretendard,SUIT,"Noto Sans KR",system-ui,sans-serif;color:var(--ink);background:#fff}header{border-bottom:2px solid var(--blue);background:#fff;position:sticky;top:0;z-index:10}.wrap{max-width:1280px;margin:0 auto;padding:16px 18px}h1{margin:0;color:var(--blue);font-size:23px;font-weight:950;letter-spacing:-.04em}.sub{margin-top:6px;color:var(--muted);font-size:12px;font-weight:750}.card{border:1.5px solid var(--line);border-radius:14px;padding:14px;background:#fff;margin-top:14px}.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button{border:1.5px solid var(--blue);background:#fff;color:var(--blue);font-weight:900;padding:8px 11px;border-radius:999px;cursor:pointer}button.active,button.lime{background:var(--lime);color:var(--ink);border-color:var(--ink)}input,select,textarea{border:1.5px solid var(--line);padding:9px 10px;font-family:inherit;font-size:13px;width:100%;background:#fff}textarea{min-height:78px;resize:vertical}.login{max-width:420px}.grid{display:grid;gap:10px}.two{grid-template-columns:1fr 1fr}.table-wrap{overflow:auto}.reports{width:100%;border-collapse:collapse;font-size:12px;min-width:1020px}.reports th,.reports td{border-bottom:1px solid var(--line);padding:9px;text-align:left;vertical-align:top}.reports th{color:var(--blue);background:var(--pale);font-weight:950}.badge{display:inline-block;border:1px solid var(--blue);color:var(--blue);font-weight:900;padding:2px 6px;background:#fff}.badge.pending{border-color:#f59e0b;color:#92400e}.badge.approved{background:var(--lime);color:var(--ink);border-color:var(--ink)}.badge.rejected{border-color:var(--red);color:var(--red)}.badge.private{border-color:#64748b;color:#475569}.notice{background:linear-gradient(90deg,var(--pale),#fff);border-left:4px solid var(--lime);padding:10px 12px;color:#24324a;font-size:12px;line-height:1.55;font-weight:650}.status{font-size:12px;color:var(--muted);font-weight:900;margin-top:8px}.hidden{display:none}@media(max-width:800px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>제보 관리자</h1><div class="sub">Supabase Auth 로그인 후 제보 상태와 관리자 메모를 검토합니다.</div></div></header>
+<main class="wrap">
+<section class="card login" id="loginCard">
+  <div class="grid">
+    <input id="email" type="email" placeholder="관리자 이메일">
+    <input id="password" type="password" placeholder="비밀번호">
+    <button class="lime" id="loginBtn" type="button">로그인</button>
+    <div class="status" id="loginStatus"></div>
+  </div>
+</section>
+<section class="card hidden" id="adminPanel">
+  <div class="toolbar">
+    <select id="statusFilter" style="max-width:220px">
+      <option value="pending">pending</option>
+      <option value="reviewing">reviewing</option>
+      <option value="approved">approved</option>
+      <option value="rejected">rejected</option>
+      <option value="private">private</option>
+      <option value="ALL">전체</option>
+    </select>
+    <button id="refreshBtn" type="button">새로고침</button>
+    <button id="logoutBtn" type="button">로그아웃</button>
+  </div>
+  <div class="notice" style="margin-top:10px">상담기록, 내담자 개인정보, 내부자료가 포함된 제보는 공개하지 말고 private 또는 rejected로 분류하세요.</div>
+  <div class="status" id="adminStatus"></div>
+  <div class="table-wrap"><table class="reports" id="reportsTable"></table></div>
+</section>
+</main>
+<script>
+const statuses=["pending","reviewing","approved","rejected","private"];
+const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+let currentRows=[];
+
+function setStatus(text){document.getElementById("adminStatus").textContent=text||"";}
+function renderRows(rows){
+  currentRows=rows;
+  const table=document.getElementById("reportsTable");
+  table.innerHTML="<thead><tr><th>상태</th><th>업소</th><th>제보</th><th>연락처</th><th>관리자 메모</th><th>처리</th></tr></thead><tbody>"+
+    rows.map(r=>`<tr>
+      <td><span class="badge ${esc(r.status)}">${esc(r.status)}</span><br><span>${esc((r.created_at||"").slice(0,10))}</span></td>
+      <td><b>${esc(r.shop_name)}</b><br>${esc(r.shop_address)}<br><span>${esc(r.shop_id)}</span></td>
+      <td><b>${esc(r.report_type)}</b><br>${esc(r.report_content)}${r.source_url?`<br><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처</a>`:""}</td>
+      <td>${esc(r.reporter_contact||"")}</td>
+      <td><textarea id="memo-${r.id}">${esc(r.admin_memo||"")}</textarea></td>
+      <td><div class="grid"><select id="status-${r.id}">${statuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveReport('${r.id}')">저장</button><span class="status">${esc((r.reviewed_at||"").slice(0,16).replace("T"," "))}</span></div></td>
+    </tr>`).join("")+"</tbody>";
+}
+
+async function loadRows(){
+  try{
+    setStatus("불러오는 중입니다.");
+    const rows=await window.ReportService.listAdminReports(document.getElementById("statusFilter").value);
+    renderRows(rows);
+    setStatus(`${rows.length}건을 불러왔습니다.`);
+  }catch(err){
+    setStatus(err.message||"제보를 불러오지 못했습니다.");
+  }
+}
+
+async function saveReport(id){
+  try{
+    await window.ReportService.updateAdminReport(id,{
+      status:document.getElementById(`status-${id}`).value,
+      adminMemo:document.getElementById(`memo-${id}`).value
+    });
+    await loadRows();
+  }catch(err){
+    setStatus(err.message||"저장하지 못했습니다.");
+  }
+}
+
+async function showAdmin(){
+  document.getElementById("loginCard").classList.add("hidden");
+  document.getElementById("adminPanel").classList.remove("hidden");
+  await loadRows();
+}
+
+window.addEventListener("DOMContentLoaded",async()=>{
+  document.getElementById("loginBtn").addEventListener("click",async()=>{
+    const status=document.getElementById("loginStatus");
+    status.textContent="로그인 중입니다.";
+    try{
+      await window.ReportService.signIn(document.getElementById("email").value,document.getElementById("password").value);
+      status.textContent="";
+      await showAdmin();
+    }catch(err){
+      status.textContent=err.message||"로그인하지 못했습니다.";
+    }
+  });
+  document.getElementById("logoutBtn").addEventListener("click",async()=>{await window.ReportService.signOut();location.reload();});
+  document.getElementById("refreshBtn").addEventListener("click",loadRows);
+  document.getElementById("statusFilter").addEventListener("change",loadRows);
+  try{
+    if(await window.ReportService.getSession()) await showAdmin();
+  }catch(err){
+    document.getElementById("loginStatus").textContent=err.message||"Supabase 설정을 확인하세요.";
+  }
+});
+</script>
+</body>
+</html>
