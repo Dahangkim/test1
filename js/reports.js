@@ -117,9 +117,7 @@
 
   async function deleteAdminReport(id) {
     const { error } = await requireClient()
-      .from(TABLE)
-      .delete()
-      .eq("id", id);
+      .rpc("delete_admin_report", { p_id: id });
     if (error) throw error;
     return { deleted: true };
   }
@@ -250,9 +248,7 @@
 
   async function deleteFieldNote(id) {
     const { error } = await requireClient()
-      .from(FIELD_NOTE_TABLE)
-      .delete()
-      .eq("id", id);
+      .rpc("delete_field_note", { p_id: id });
     if (error) throw error;
     return { deleted: true };
   }

@@ -243,6 +243,48 @@ alter function public.submit_field_note(text,text,text,text,text,text,text,text,
 revoke all on function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text,double precision,double precision,double precision,text) from public;
 grant execute on function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text,double precision,double precision,double precision,text) to anon, authenticated;
 
+create or replace function public.delete_admin_report(p_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+set row_security = off
+as $$
+begin
+  if not public.is_reports_admin() then
+    raise exception '관리자 권한이 필요합니다.';
+  end if;
+
+  delete from public.reports
+  where id = p_id;
+end;
+$$;
+
+alter function public.delete_admin_report(uuid) owner to postgres;
+revoke all on function public.delete_admin_report(uuid) from public;
+grant execute on function public.delete_admin_report(uuid) to authenticated;
+
+create or replace function public.delete_field_note(p_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+set row_security = off
+as $$
+begin
+  if not public.is_reports_admin() then
+    raise exception '관리자 권한이 필요합니다.';
+  end if;
+
+  delete from public.field_notes
+  where id = p_id;
+end;
+$$;
+
+alter function public.delete_field_note(uuid) owner to postgres;
+revoke all on function public.delete_field_note(uuid) from public;
+grant execute on function public.delete_field_note(uuid) to authenticated;
+
 create or replace function public.is_reports_admin()
 returns boolean
 language sql
