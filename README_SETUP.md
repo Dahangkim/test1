@@ -24,6 +24,25 @@
 5. `config.example.js`를 복사해 `config.js`를 만들고 실제 값을 입력합니다.
 6. GitHub Pages에 올릴 때 `config.js`가 공개 저장소에 커밋되지 않도록 `.gitignore`에 추가합니다.
 
+## GitHub Pages 배포 설정
+
+실제 `config.js`를 저장소에 커밋하지 않기 위해 `.github/workflows/pages.yml`이 배포 시점에 `config.js`를 자동 생성합니다.
+
+GitHub 저장소에서 아래 값을 Secrets로 등록하세요.
+
+- `SUPABASE_URL`: Supabase Project URL
+- `SUPABASE_ANON_KEY`: Supabase publishable key
+
+등록 위치:
+
+1. GitHub 저장소 접속
+2. **Settings**
+3. **Secrets and variables**
+4. **Actions**
+5. **New repository secret**
+
+그다음 GitHub Pages 설정에서 배포 방식을 **GitHub Actions**로 선택합니다.
+
 ## config.js 예시
 
 ```js
