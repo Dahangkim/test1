@@ -37,13 +37,11 @@
     if (!row.shop_id || !row.shop_name || !row.report_type || !row.report_content) {
       throw new Error("업소 정보, 제보 유형, 제보 내용을 확인하세요.");
     }
-    const { data, error } = await requireClient()
+    const { error } = await requireClient()
       .from(TABLE)
-      .insert(row)
-      .select("id,status,created_at")
-      .single();
+      .insert(row);
     if (error) throw error;
-    return data;
+    return { status: "pending" };
   }
 
   async function listApprovedReports() {
