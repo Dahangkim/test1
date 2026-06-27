@@ -51,6 +51,12 @@
     <button id="refreshBtn" type="button">새로고침</button>
     <button id="logoutBtn" type="button">로그아웃</button>
   </div>
+  <div class="toolbar">
+    <button type="button" onclick="toggleAllChecks(true)">전체 선택</button>
+    <button type="button" onclick="toggleAllChecks(false)">선택 해제</button>
+    <button type="button" onclick="bulkDelete()">선택 삭제</button>
+    <button type="button" onclick="deleteAllRows()">전체 삭제</button>
+  </div>
   <div class="notice" style="margin-top:10px">상담기록, 내담자 개인정보, 내부자료가 포함된 제보는 공개하지 말고 private 또는 rejected로 분류하세요.</div>
   <div class="status" id="adminStatus"></div>
   <div class="table-wrap"><table class="reports" id="reportsTable"></table></div>
@@ -70,8 +76,9 @@ function setAdminView(view){adminView=view;document.getElementById("tabReports")
 function renderRows(rows){
   currentRows=rows;
   const table=document.getElementById("reportsTable");
-  table.innerHTML="<thead><tr><th>상태</th><th>업소</th><th>제보</th><th>연락처</th><th>관리자 메모</th><th>처리</th></tr></thead><tbody>"+
+  table.innerHTML="<thead><tr><th></th><th>상태</th><th>업소</th><th>제보</th><th>연락처</th><th>관리자 메모</th><th>처리</th></tr></thead><tbody>"+
     rows.map(r=>`<tr>
+      <td><input type="checkbox" id="chk-r-${r.id}"></td>
       <td><span class="badge ${esc(r.status)}">${esc(r.status)}</span><br><span>${esc(fmtDateTime(r.created_at))}</span></td>
       <td><b>${esc(r.shop_name)}</b><br>${esc(r.shop_address)}<br><span>${esc(r.shop_id)}</span></td>
       <td><b>${esc(r.report_type)}</b><br>${esc(r.report_content)}${r.source_url?`<br><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처</a>`:""}</td>
@@ -84,8 +91,9 @@ function renderRows(rows){
 function renderFieldNotes(rows){
   currentRows=rows;
   const table=document.getElementById("fieldNotesTable");
-  table.innerHTML="<thead><tr><th>상태</th><th>업소</th><th>조사자</th><th>조사 메모</th><th>관리자 메모</th><th>처리</th></tr></thead><tbody>"+
+  table.innerHTML="<thead><tr><th></th><th>상태</th><th>업소</th><th>조사자</th><th>조사 메모</th><th>관리자 메모</th><th>처리</th></tr></thead><tbody>"+
     rows.map(r=>`<tr>
+      <td><input type="checkbox" id="chk-f-${r.id}"></td>
       <td><span class="badge ${esc(r.status)}">${esc(r.status)}</span><br><span>접수 ${esc(fmtDateTime(r.created_at))}</span></td>
       <td><b>${esc(r.shop_name)}</b><br>${esc(r.shop_address)}<br><span>${esc(r.dong||"")} · ${esc(r.shop_id)}</span></td>
       <td>${esc(r.investigator_name||"")}<br><span>${esc(r.investigation_date||"")}</span></td>
@@ -93,6 +101,50 @@ function renderFieldNotes(rows){
       <td><textarea id="field-memo-${r.id}">${esc(r.admin_memo||"")}</textarea></td>
       <td><div class="grid"><select id="field-status-${r.id}">${fieldStatuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveFieldNote('${r.id}')">저장</button><button type="button" onclick="deleteFieldNote('${r.id}')">메모 삭제</button><span class="status">${esc(fmtDateTime(r.reviewed_at))}</span></div></td>
     </tr>`).join("")+"</tbody>";
+}
+
+function checkboxPrefix(){return adminView==="reports"?"chk-r-":"chk-f-";}
+
+function toggleAllChecks(checked){
+  const prefix=checkboxPrefix();
+  currentRows.forEach(r=>{const el=document.getElementById(prefix+r.id);if(el)el.checked=checked;});
+}
+
+function getCheckedIds(){
+  const prefix=checkboxPrefix();
+  return currentRows.filter(r=>document.getElementById(prefix+r.id)?.checked).map(r=>r.id);
+}
+
+async function deleteIds(ids){
+  for(const id of ids){
+    if(adminView==="reports") await window.ReportService.deleteAdminReport(id);
+    else await window.ReportService.deleteFieldNote(id);
+  }
+}
+
+async function bulkDelete(){
+  const ids=getCheckedIds();
+  if(!ids.length){setStatus("선택된 항목이 없습니다.");return;}
+  if(!confirm(`선택한 ${ids.length}건을 삭제할까요? 삭제하면 복구하기 어렵습니다.`))return;
+  try{
+    setStatus("삭제하는 중입니다.");
+    await deleteIds(ids);
+    await loadRows();
+  }catch(err){
+    setStatus(err.message||"삭제하지 못했습니다.");
+  }
+}
+
+async function deleteAllRows(){
+  if(!currentRows.length){setStatus("삭제할 항목이 없습니다.");return;}
+  if(!confirm(`현재 목록의 전체 ${currentRows.length}건을 삭제할까요? 삭제하면 복구하기 어렵습니다.`))return;
+  try{
+    setStatus("삭제하는 중입니다.");
+    await deleteIds(currentRows.map(r=>r.id));
+    await loadRows();
+  }catch(err){
+    setStatus(err.message||"삭제하지 못했습니다.");
+  }
 }
 
 async function loadRows(){
