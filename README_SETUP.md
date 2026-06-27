@@ -59,7 +59,7 @@ window.JEJU_DASHBOARD_CONFIG = {
 
 제보 폼의 `reporter_contact`는 관리자 검토용입니다. 공개 대시보드는 `status='approved'`인 제보만 읽으며, 연락처와 관리자 메모는 공개 조회 컬럼에 포함하지 않습니다.
 
-활동가 조사메모는 `field-note.html`에서 로그인 없이 접수할 수 있습니다. 접수된 메모는 공개 대시보드에 표시되지 않고 `admin.html`의 활동가 메모 탭에서만 검토합니다.
+활동가 조사메모는 `field-note.html`에서 로그인 없이 접수할 수 있습니다. 접수 직후에는 공개 대시보드에 표시되지 않고, `admin.html`의 활동가 메모 탭에서 관리자가 검토합니다. 관리자가 상태를 `reflected`로 바꾼 메모만 공개 대시보드의 `반영된 조사메모` 탭에 표시됩니다. 공개 대시보드에는 조사자 이름을 표시하지 않습니다.
 
 ## 관리자 상태값
 
@@ -67,6 +67,14 @@ window.JEJU_DASHBOARD_CONFIG = {
 - `reviewing`: 검토 중
 - `approved`: 공개 승인
 - `rejected`: 반려
+- `private`: 비공개 보관
+
+활동가 조사메모 상태값:
+
+- `submitted`: 접수
+- `reviewing`: 검토 중
+- `reflected`: 대시보드 반영
+- `archived`: 보관
 - `private`: 비공개 보관
 
 ## 위험요소
