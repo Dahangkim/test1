@@ -69,7 +69,7 @@ input,select,textarea{border:1.5px solid var(--line);padding:9px 10px;font-famil
 </main>
 <footer class="wrap" style="padding:14px 18px;color:var(--muted);font-size:11px;line-height:1.6;border-top:1px solid var(--line);margin-top:8px">
 <p>본 사이트는 방문 통계 분석을 위해 Google Analytics를 사용합니다.</p>
-<p>© 제주현장상담센터 해냄. 본 대시보드의 기획·제작 저작권은 해냄에 있습니다.</p>
+<p>© 김수현. 본 대시보드의 기획·제작 저작권은 김수현에게 있습니다.</p>
 </footer>
 <div class="report-modal" id="reportModal" aria-hidden="true"><div class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="reportModalTitle"><h2 id="reportModalTitle">업소 정보 제보</h2><form class="report-form" id="reportForm"><input type="hidden" id="reportShopId"><label>업소명<input id="reportShopName" readonly></label><label>주소<input id="reportShopAddress" readonly></label><label>제보 유형<select id="reportType" required><option value="">선택</option><option value="현장정보">현장정보</option><option value="영업상태">영업상태</option><option value="주소/위치">주소/위치</option><option value="온라인광고">온라인광고</option><option value="기타">기타</option></select></label><label>제보 내용<textarea id="reportContent" required placeholder="공개 가능한 범위의 사실 중심 정보만 입력하세요. 상담기록, 내담자 개인정보, 내부자료는 입력하지 마세요."></textarea></label><label>출처 URL<input id="reportSourceUrl" type="url" placeholder="https://"></label><label>연락처<input id="reporterContact" placeholder="선택 입력. 공개되지 않으며 검토 목적에만 사용"></label><div class="notice">상담기록, 내담자 개인정보, 내부자료, 사건 관계자 식별정보는 입력하지 마세요. 접수된 제보는 관리자 승인 후 공개됩니다.</div><div class="report-status" id="reportSubmitStatus"></div><div class="report-dialog-actions"><button type="button" onclick="window.ReportUI?.closeModal()">닫기</button><button class="lime" type="submit">제보 제출</button></div></form></div></div>
 <script>
