@@ -115,6 +115,15 @@
     return data;
   }
 
+  async function deleteAdminReport(id) {
+    const { error } = await requireClient()
+      .from(TABLE)
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+    return { deleted: true };
+  }
+
   async function getShopMemo(shopId) {
     const { data, error } = await requireClient()
       .from(MEMO_TABLE)
@@ -239,6 +248,15 @@
     return data;
   }
 
+  async function deleteFieldNote(id) {
+    const { error } = await requireClient()
+      .from(FIELD_NOTE_TABLE)
+      .delete()
+      .eq("id", id);
+    if (error) throw error;
+    return { deleted: true };
+  }
+
   function openModal(shop) {
     const modal = document.getElementById("reportModal");
     if (!modal) return;
@@ -298,12 +316,14 @@
     signOut,
     listAdminReports,
     updateAdminReport,
+    deleteAdminReport,
     getShopMemo,
     upsertShopMemo,
     submitFieldNote,
     listFieldNotes,
     listReflectedFieldNotes,
-    updateFieldNote
+    updateFieldNote,
+    deleteFieldNote
   };
 
   window.ReportUI = {

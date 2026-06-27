@@ -77,20 +77,27 @@ function renderRows(rows){
       <td><b>${esc(r.report_type)}</b><br>${esc(r.report_content)}${r.source_url?`<br><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처</a>`:""}</td>
       <td>${esc(r.reporter_contact||"")}</td>
       <td><textarea id="memo-${r.id}">${esc(r.admin_memo||"")}</textarea></td>
-      <td><div class="grid"><select id="status-${r.id}">${statuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveReport('${r.id}')">저장</button><span class="status">${esc(fmtDateTime(r.reviewed_at))}</span></div></td>
+      <td><div class="grid"><select id="status-${r.id}">${statuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveReport('${r.id}')">저장</button><button type="button" onclick="deleteReport('${r.id}')">제보 삭제</button><span class="status">${esc(fmtDateTime(r.reviewed_at))}</span></div></td>
     </tr>`).join("")+"</tbody>";
 }
 
+function renderFieldLocation(r){
+  if (r.field_lat == null || r.field_lon == null) return `<br><span class="status">첨부 위치 없음</span>`;
+  const coords=`${r.field_lat},${r.field_lon}`;
+  return `<br><a href="https://maps.google.com/?q=${encodeURIComponent(coords)}" target="_blank" rel="noopener">첨부 위치 보기</a><br><span class="status">좌표 ${esc(Number(r.field_lat).toFixed(6))}, ${esc(Number(r.field_lon).toFixed(6))} · 정확도 약 ${esc(Math.round(r.field_accuracy_m||0))}m · ${esc(fmtDateTime(r.field_location_captured_at))}</span>`;
+}
+
 function renderFieldNotes(rows){
+  currentRows=rows;
   const table=document.getElementById("fieldNotesTable");
   table.innerHTML="<thead><tr><th>상태</th><th>업소</th><th>조사자</th><th>조사 메모</th><th>관리자 메모</th><th>처리</th></tr></thead><tbody>"+
     rows.map(r=>`<tr>
       <td><span class="badge ${esc(r.status)}">${esc(r.status)}</span><br><span>접수 ${esc(fmtDateTime(r.created_at))}</span></td>
       <td><b>${esc(r.shop_name)}</b><br>${esc(r.shop_address)}<br><span>${esc(r.dong||"")} · ${esc(r.shop_id)}</span></td>
       <td>${esc(r.investigator_name||"")}<br><span>${esc(r.investigation_date||"")}</span></td>
-      <td><b>${esc(r.field_check||"")}</b> / ${esc(r.open_guess||"")} / ${esc(r.online_ad||"")}<br>${esc(r.memo_text||"")}${r.source_url?`<br><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처</a>`:""}${r.field_lat&&r.field_lon?`<br><a href="https://maps.google.com/?q=${encodeURIComponent(r.field_lat+","+r.field_lon)}" target="_blank" rel="noopener">첨부 위치 보기</a><br><span class="status">정확도 약 ${esc(Math.round(r.field_accuracy_m||0))}m · ${esc(fmtDateTime(r.field_location_captured_at))}</span>`:""}</td>
+      <td><b>${esc(r.field_check||"")}</b> / ${esc(r.open_guess||"")} / ${esc(r.online_ad||"")}<br>${esc(r.memo_text||"")}${r.source_url?`<br><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처</a>`:""}${renderFieldLocation(r)}</td>
       <td><textarea id="field-memo-${r.id}">${esc(r.admin_memo||"")}</textarea></td>
-      <td><div class="grid"><select id="field-status-${r.id}">${fieldStatuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveFieldNote('${r.id}')">저장</button><span class="status">${esc(fmtDateTime(r.reviewed_at))}</span></div></td>
+      <td><div class="grid"><select id="field-status-${r.id}">${fieldStatuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveFieldNote('${r.id}')">저장</button><button type="button" onclick="deleteFieldNote('${r.id}')">메모 삭제</button><span class="status">${esc(fmtDateTime(r.reviewed_at))}</span></div></td>
     </tr>`).join("")+"</tbody>";
 }
 
@@ -116,6 +123,26 @@ async function saveFieldNote(id){
     await loadRows();
   }catch(err){
     setStatus(err.message||"저장하지 못했습니다.");
+  }
+}
+
+async function deleteFieldNote(id){
+  if(!confirm("이 활동가 조사메모를 삭제할까요? 삭제하면 복구하기 어렵습니다."))return;
+  try{
+    await window.ReportService.deleteFieldNote(id);
+    await loadRows();
+  }catch(err){
+    setStatus(err.message||"조사메모를 삭제하지 못했습니다.");
+  }
+}
+
+async function deleteReport(id){
+  if(!confirm("이 제보를 삭제할까요? 삭제하면 복구하기 어렵습니다."))return;
+  try{
+    await window.ReportService.deleteAdminReport(id);
+    await loadRows();
+  }catch(err){
+    setStatus(err.message||"제보를 삭제하지 못했습니다.");
   }
 }
 

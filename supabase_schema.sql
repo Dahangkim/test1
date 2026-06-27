@@ -291,6 +291,13 @@ to authenticated
 using (public.is_reports_admin())
 with check (public.is_reports_admin());
 
+drop policy if exists "admins can delete reports" on public.reports;
+create policy "admins can delete reports"
+on public.reports
+for delete
+to authenticated
+using (public.is_reports_admin());
+
 drop policy if exists "admins can read admin profiles" on public.admin_profiles;
 create policy "admins can read admin profiles"
 on public.admin_profiles
@@ -341,6 +348,13 @@ for update
 to authenticated
 using (public.is_reports_admin())
 with check (public.is_reports_admin());
+
+drop policy if exists "admins can delete field notes" on public.field_notes;
+create policy "admins can delete field notes"
+on public.field_notes
+for delete
+to authenticated
+using (public.is_reports_admin());
 
 -- 관리자 등록 예시:
 -- 1. Supabase Auth에서 관리자 계정을 만든다.
