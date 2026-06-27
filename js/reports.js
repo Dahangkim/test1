@@ -5,7 +5,8 @@
   const PUBLIC_COLUMNS = "id,shop_id,shop_name,shop_address,report_type,report_content,source_url,status,created_at,reviewed_at";
   const ADMIN_COLUMNS = "id,shop_id,shop_name,shop_address,report_type,report_content,source_url,reporter_contact,status,admin_memo,created_at,updated_at,reviewed_at,reviewed_by";
   const MEMO_COLUMNS = "shop_id,shop_name,dong,address,status,open_date,close_date,field_check,open_guess,online_ad,source_url,memo_text,created_at,updated_at,created_by,updated_by";
-  const FIELD_NOTE_COLUMNS = "id,shop_id,shop_name,shop_address,dong,investigator_name,investigation_date,field_check,open_guess,online_ad,source_url,memo_text,status,admin_memo,created_at,updated_at,reviewed_at,reviewed_by";
+  const FIELD_NOTE_PUBLIC_COLUMNS = "id,shop_id,shop_name,shop_address,dong,investigator_name,investigation_date,field_check,open_guess,online_ad,source_url,memo_text,status,created_at,updated_at,reviewed_at";
+  const FIELD_NOTE_COLUMNS = "id,shop_id,shop_name,shop_address,dong,investigator_name,investigation_date,field_check,open_guess,online_ad,source_url,memo_text,field_lat,field_lon,field_accuracy_m,field_location_captured_at,status,admin_memo,created_at,updated_at,reviewed_at,reviewed_by";
 
   function client() {
     return window.JejuSupabase?.client || null;
@@ -165,7 +166,11 @@
       open_guess: String(payload.openGuess || "").trim() || null,
       online_ad: String(payload.online || "").trim() || null,
       source_url: String(payload.source || "").trim() || null,
-      memo_text: String(payload.text || "").trim() || null
+      memo_text: String(payload.text || "").trim() || null,
+      field_lat: payload.fieldLat === "" || payload.fieldLat == null ? null : Number(payload.fieldLat),
+      field_lon: payload.fieldLon === "" || payload.fieldLon == null ? null : Number(payload.fieldLon),
+      field_accuracy_m: payload.fieldAccuracy === "" || payload.fieldAccuracy == null ? null : Number(payload.fieldAccuracy),
+      field_location_captured_at: String(payload.fieldLocationCapturedAt || "").trim() || null
     };
     if (!row.shop_id || !row.shop_name || !row.shop_address) {
       throw new Error("업소를 선택하거나 업소명과 주소를 입력하세요.");
@@ -182,7 +187,11 @@
         p_open_guess: row.open_guess,
         p_online_ad: row.online_ad,
         p_source_url: row.source_url,
-        p_memo_text: row.memo_text
+        p_memo_text: row.memo_text,
+        p_field_lat: row.field_lat,
+        p_field_lon: row.field_lon,
+        p_field_accuracy_m: row.field_accuracy_m,
+        p_field_location_captured_at: row.field_location_captured_at
       });
     if (error) throw error;
     return { status: "submitted" };
@@ -191,7 +200,7 @@
   async function listFieldNotes(status) {
     let query = requireClient()
       .from(FIELD_NOTE_TABLE)
-      .select(FIELD_NOTE_COLUMNS)
+      .select(FIELD_NOTE_PUBLIC_COLUMNS)
       .order("created_at", { ascending: false });
     if (status && status !== "ALL") query = query.eq("status", status);
     const { data, error } = await query;

@@ -62,6 +62,10 @@ create table if not exists public.field_notes (
   online_ad text,
   source_url text,
   memo_text text,
+  field_lat double precision,
+  field_lon double precision,
+  field_accuracy_m double precision,
+  field_location_captured_at timestamptz,
   status text not null default 'submitted' check (status in ('submitted','reviewing','reflected','archived','private')),
   admin_memo text,
   reviewed_at timestamptz,
@@ -69,6 +73,11 @@ create table if not exists public.field_notes (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.field_notes add column if not exists field_lat double precision;
+alter table public.field_notes add column if not exists field_lon double precision;
+alter table public.field_notes add column if not exists field_accuracy_m double precision;
+alter table public.field_notes add column if not exists field_location_captured_at timestamptz;
 
 create index if not exists field_notes_status_idx on public.field_notes(status);
 create index if not exists field_notes_shop_id_idx on public.field_notes(shop_id);
@@ -164,6 +173,9 @@ alter function public.submit_public_report(text,text,text,text,text,text,text) o
 revoke all on function public.submit_public_report(text,text,text,text,text,text,text) from public;
 grant execute on function public.submit_public_report(text,text,text,text,text,text,text) to anon, authenticated;
 
+drop function if exists public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text);
+drop function if exists public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text,double precision,double precision,double precision,text);
+
 create or replace function public.submit_field_note(
   p_shop_id text,
   p_shop_name text,
@@ -175,7 +187,11 @@ create or replace function public.submit_field_note(
   p_open_guess text default null,
   p_online_ad text default null,
   p_source_url text default null,
-  p_memo_text text default null
+  p_memo_text text default null,
+  p_field_lat double precision default null,
+  p_field_lon double precision default null,
+  p_field_accuracy_m double precision default null,
+  p_field_location_captured_at text default null
 )
 returns void
 language plpgsql
@@ -196,6 +212,10 @@ begin
     online_ad,
     source_url,
     memo_text,
+    field_lat,
+    field_lon,
+    field_accuracy_m,
+    field_location_captured_at,
     status
   )
   values (
@@ -210,14 +230,18 @@ begin
     nullif(trim(p_online_ad), ''),
     nullif(trim(p_source_url), ''),
     nullif(trim(p_memo_text), ''),
+    p_field_lat,
+    p_field_lon,
+    p_field_accuracy_m,
+    nullif(trim(p_field_location_captured_at), '')::timestamptz,
     'submitted'
   );
 end;
 $$;
 
-alter function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text) owner to postgres;
-revoke all on function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text) from public;
-grant execute on function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text) to anon, authenticated;
+alter function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text,double precision,double precision,double precision,text) owner to postgres;
+revoke all on function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text,double precision,double precision,double precision,text) from public;
+grant execute on function public.submit_field_note(text,text,text,text,text,text,text,text,text,text,text,double precision,double precision,double precision,text) to anon, authenticated;
 
 create or replace function public.is_reports_admin()
 returns boolean

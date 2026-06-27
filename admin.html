@@ -61,6 +61,7 @@
 const statuses=["pending","reviewing","approved","rejected","private"];
 const fieldStatuses=["submitted","reviewing","reflected","archived","private"];
 const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const fmtDateTime=v=>v?new Date(v).toLocaleString("ko-KR",{timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
 let currentRows=[];
 let adminView="reports";
 
@@ -71,12 +72,12 @@ function renderRows(rows){
   const table=document.getElementById("reportsTable");
   table.innerHTML="<thead><tr><th>상태</th><th>업소</th><th>제보</th><th>연락처</th><th>관리자 메모</th><th>처리</th></tr></thead><tbody>"+
     rows.map(r=>`<tr>
-      <td><span class="badge ${esc(r.status)}">${esc(r.status)}</span><br><span>${esc((r.created_at||"").slice(0,10))}</span></td>
+      <td><span class="badge ${esc(r.status)}">${esc(r.status)}</span><br><span>${esc(fmtDateTime(r.created_at))}</span></td>
       <td><b>${esc(r.shop_name)}</b><br>${esc(r.shop_address)}<br><span>${esc(r.shop_id)}</span></td>
       <td><b>${esc(r.report_type)}</b><br>${esc(r.report_content)}${r.source_url?`<br><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처</a>`:""}</td>
       <td>${esc(r.reporter_contact||"")}</td>
       <td><textarea id="memo-${r.id}">${esc(r.admin_memo||"")}</textarea></td>
-      <td><div class="grid"><select id="status-${r.id}">${statuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveReport('${r.id}')">저장</button><span class="status">${esc((r.reviewed_at||"").slice(0,16).replace("T"," "))}</span></div></td>
+      <td><div class="grid"><select id="status-${r.id}">${statuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveReport('${r.id}')">저장</button><span class="status">${esc(fmtDateTime(r.reviewed_at))}</span></div></td>
     </tr>`).join("")+"</tbody>";
 }
 
@@ -84,12 +85,12 @@ function renderFieldNotes(rows){
   const table=document.getElementById("fieldNotesTable");
   table.innerHTML="<thead><tr><th>상태</th><th>업소</th><th>조사자</th><th>조사 메모</th><th>관리자 메모</th><th>처리</th></tr></thead><tbody>"+
     rows.map(r=>`<tr>
-      <td><span class="badge ${esc(r.status)}">${esc(r.status)}</span><br><span>${esc((r.created_at||"").slice(0,10))}</span></td>
+      <td><span class="badge ${esc(r.status)}">${esc(r.status)}</span><br><span>접수 ${esc(fmtDateTime(r.created_at))}</span></td>
       <td><b>${esc(r.shop_name)}</b><br>${esc(r.shop_address)}<br><span>${esc(r.dong||"")} · ${esc(r.shop_id)}</span></td>
       <td>${esc(r.investigator_name||"")}<br><span>${esc(r.investigation_date||"")}</span></td>
-      <td><b>${esc(r.field_check||"")}</b> / ${esc(r.open_guess||"")} / ${esc(r.online_ad||"")}<br>${esc(r.memo_text||"")}${r.source_url?`<br><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처</a>`:""}</td>
+      <td><b>${esc(r.field_check||"")}</b> / ${esc(r.open_guess||"")} / ${esc(r.online_ad||"")}<br>${esc(r.memo_text||"")}${r.source_url?`<br><a href="${esc(r.source_url)}" target="_blank" rel="noopener">출처</a>`:""}${r.field_lat&&r.field_lon?`<br><a href="https://maps.google.com/?q=${encodeURIComponent(r.field_lat+","+r.field_lon)}" target="_blank" rel="noopener">첨부 위치 보기</a><br><span class="status">정확도 약 ${esc(Math.round(r.field_accuracy_m||0))}m · ${esc(fmtDateTime(r.field_location_captured_at))}</span>`:""}</td>
       <td><textarea id="field-memo-${r.id}">${esc(r.admin_memo||"")}</textarea></td>
-      <td><div class="grid"><select id="field-status-${r.id}">${fieldStatuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveFieldNote('${r.id}')">저장</button><span class="status">${esc((r.reviewed_at||"").slice(0,16).replace("T"," "))}</span></div></td>
+      <td><div class="grid"><select id="field-status-${r.id}">${fieldStatuses.map(s=>`<option value="${s}" ${s===r.status?"selected":""}>${s}</option>`).join("")}</select><button class="lime" type="button" onclick="saveFieldNote('${r.id}')">저장</button><span class="status">${esc(fmtDateTime(r.reviewed_at))}</span></div></td>
     </tr>`).join("")+"</tbody>";
 }
 
