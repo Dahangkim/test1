@@ -16,6 +16,16 @@
     return Boolean(window.JejuSupabase?.isReady?.() && client());
   }
 
+  function trackClarity(eventName, tags = {}) {
+    try {
+      if (typeof window.clarity !== "function") return;
+      window.clarity("event", eventName);
+      Object.entries(tags).forEach(([key, value]) => window.clarity("set", key, String(value ?? "")));
+    } catch (err) {
+      console.warn("clarity event failed", err);
+    }
+  }
+
   function requireClient() {
     const supabase = client();
     if (!supabase) {
@@ -273,11 +283,16 @@
           sourceUrl: document.getElementById("reportSourceUrl").value,
           reporterContact: document.getElementById("reporterContact").value
         });
+        trackClarity("report_submit_success", {
+          Action: "Report_Submit",
+          Report_Type: document.getElementById("reportType").value || ""
+        });
         status.textContent = "접수되었습니다. 관리자 검토 후 공개됩니다.";
         form.reset();
         setTimeout(closeModal, 900);
         options.onSubmitted?.();
       } catch (err) {
+        trackClarity("report_submit_error", { Action: "Report_Submit_Error" });
         status.textContent = err.message || "제출 중 오류가 발생했습니다.";
       }
     });
